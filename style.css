@@ -1,4 +1,4 @@
-/* style.css - No changes needed for emoji logic, but including for completeness */
+/* style.css - Reviewed for mobile compatibility */
 html,
 body {
     margin: 0;
@@ -11,22 +11,32 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    /* Prevent mobile browsers from adjusting font size */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
 }
 
 .game-container {
     display: flex;
     flex-direction: column;
+    /* Use percentage width for responsiveness, adjust as needed */
     width: 95%;
+    /* Increased width for better mobile use */
     max-width: 960px;
+    /* Max width for larger screens */
     height: 95%;
+    /* Use percentage height for responsiveness */
     max-height: 700px;
+    /* Optional: set a max height */
     border-radius: 20px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
     background-color: #ffffffdd;
     text-align: center;
     overflow: hidden;
+    /* Center the container using margins */
     margin: auto;
     position: relative;
+    /* Needed for emoji overlay positioning */
 }
 
 .game-header {
@@ -52,6 +62,7 @@ body {
 #canvasContainer {
     flex-grow: 1;
     display: flex;
+    /* Use flexbox to center canvas inside */
     justify-content: center;
     align-items: center;
     position: relative;
@@ -61,9 +72,13 @@ body {
 
 #boxingCanvas3D {
     display: block;
+    /* Removes extra space below canvas */
     max-width: 100%;
     max-height: 100%;
     outline: none;
+    /* Ensure canvas is responsive */
+    width: 100%;
+    height: 100%;
 }
 
 .game-footer {
@@ -103,6 +118,7 @@ body {
     width: 100%;
     height: 100%;
     pointer-events: none;
+    /* Allows clicks/taps to pass through to the canvas */
     overflow: hidden;
     z-index: 20;
 }
@@ -111,21 +127,26 @@ body {
     position: absolute;
     font-size: 2.5rem;
     animation: fall 2s ease-in forwards;
+    /* Added translate(-50%, -50%) back for centering the emoji div itself around the calculated point */
     transform: translate(-50%, -50%);
 }
 
 @keyframes fall {
     0% {
+        /* Start near the calculated spawn point */
         transform: translate(-50%, -50%) scale(1.2);
         opacity: 1;
     }
     100% {
-        transform: translate(-50%, calc(100vh - 50px)) scale(1);
+        /* Fall off the bottom of the viewport */
+        transform: translate(-50%, calc(100vh - 0px)) scale(1);
         opacity: 0;
     }
 }
 
+/* Responsive adjustments - Tweak as needed */
 @media (orientation: landscape) and (max-height: 480px) {
+    /* Shallow landscape */
     .game-header {
         padding: 5px;
     }
@@ -145,10 +166,22 @@ body {
 }
 
 @media (max-width: 600px) {
+    /* Adjust for smaller screens, e.g., phones */
     .game-container {
         width: 100%;
         height: 100%;
         border-radius: 0;
         box-shadow: none;
+    }
+    /* Ensure canvas takes full available space within container */
+    #canvasContainer {
+         flex-grow: 1;
+         display: flex;
+         justify-content: center;
+         align-items: center;
+    }
+    #boxingCanvas3D {
+        width: 100%;
+        height: 100%;
     }
 }
