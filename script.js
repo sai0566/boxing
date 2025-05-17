@@ -1,5 +1,5 @@
-// game3d.js - Modified for emoji type based on punch speed, fewer emojis
-console.log("game3d.js (Modified for speed-based emojis) script started");
+// game3d.js - Modified for potential mobile emoji fix and improved mobile experience
+console.log("game3d.js (Modified for mobile emoji fix) script started");
 
 // --- DOM Elements ---
 const scoreDisplay = document.getElementById('scoreDisplay');
@@ -59,15 +59,15 @@ const bagPhysics = {
 };
 
 // --- Emoji State ---
-const ANGRY_EMOJIS = ['😠', '😡', '😒'];
+const ANGRY_EMOJIS = ['😠', '😡', '😟', '🙁', '😒'];
 const HAPPY_EMOJIS = ['😊', '😄'];
 // Thresholds for emoji type based on punch speed (punchStrengthFactor)
-const HAPPY_EMOJI_SPEED_THRESHOLD = 2; // Punch strength factor above this shows happy emojis
+const HAPPY_EMOJI_SPEED_THRESHOLD = 1.5; // Punch strength factor above this shows happy emojis
 const ANGRY_EMOJI_SPEED_THRESHOLD = 1.0; // Punch strength factor below this shows angry emojis (between these is neutral/mixed)
 
-const MAX_EMOJI_BURST = 0.5; // Reduced max emojis to spawn at low scores
+const MAX_EMOJI_BURST = 2; // Max emojis to spawn at low scores
 const MIN_EMOJI_BURST = 1; // Min emojis to spawn at very high scores
-const SCORE_RANGE_FOR_REDUCTION =10; // Score range over which emoji count reduces (slightly reduced range)
+const SCORE_RANGE_FOR_REDUCTION = 100; // Score range over which emoji count reduces
 
 
 function initAudio() {
@@ -298,16 +298,35 @@ function handleClickOrTap(event) {
     event.preventDefault();
 
     const canvasBounds = canvas.getBoundingClientRect();
+    let clientX, clientY;
+
     if (event.type === 'touchstart') {
-        mouse.x = ((event.touches[0].clientX - canvasBounds.left) / canvasBounds.width) * 2 - 1;
-        mouse.y = -((event.touches[0].clientY - canvasBounds.top) / canvasBounds.height) * 2 + 1;
+        if (event.touches.length === 0) {
+            console.warn("touchstart with no touches.");
+            return; // No touch points, do nothing
+        }
+        clientX = event.touches[0].clientX;
+        clientY = event.touches[0].clientY;
+        console.log(`touchstart: clientX=${clientX}, clientY=${clientY}`);
     } else { // click
-        mouse.x = ((event.clientX - canvasBounds.left) / canvasBounds.width) * 2 - 1;
-        mouse.y = -((event.clientY - canvasBounds.top) / canvasBounds.height) * 2 + 1;
+        clientX = event.clientX;
+        clientY = event.clientY;
+        console.log(`click: clientX=${clientX}, clientY=${clientY}`);
     }
 
+    // Calculate mouse position in normalized device coordinates (-1 to +1)
+    mouse.x = ((clientX - canvasBounds.left) / canvasBounds.width) * 2 - 1;
+    mouse.y = -((clientY - canvasBounds.top) / canvasBounds.height) * 2 + 1;
+
+    console.log(`Normalized mouse position: x=${mouse.x}, y=${mouse.y}`);
+    console.log(`Canvas bounds: top=${canvasBounds.top}, left=${canvasBounds.left}, width=${canvasBounds.width}, height=${canvasBounds.height}`);
+
+
+    // Update the picking ray with the camera and mouse position
     raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects([bagMesh]);
+
+    // Calculate objects intersecting the picking ray
+    const intersects = raycaster.intersectObjects([bagMesh]); // Only check intersection with the bag mesh
 
     if (intersects.length > 0) {
         console.log("Bag tapped/clicked!");
@@ -320,6 +339,7 @@ function handleClickOrTap(event) {
         }
     } else {
         console.log("Clicked/Tapped, but not on the bag.");
+        // Optional: Handle taps/clicks not on the bag if needed
     }
 }
 
@@ -334,6 +354,7 @@ async function handleUserInteraction(event) {
             handlePunchAction();
         }
     }
+    // Clicks/Taps are now handled by handleClickOrTap
 }
 
 let physicsUpdateCount = 0;
@@ -484,7 +505,7 @@ function handlePunchAction() {
     playPunchSound(soundIndex);
     punchBag(punchStrengthFactor);
 
-    // --- Emoji Logic (Triggered by punch, based on PUNCH SPEED and total score for count) ---
+    // --- Emoji Logic (Triggered by punch, based on PUNCH SPEED for type and total score for count) ---
 
     // Determine emoji type based on punch speed (punchStrengthFactor)
     let emojisToUse;
@@ -501,6 +522,7 @@ function handlePunchAction() {
     // Determine the number of emojis to spawn based on score (More at low scores, fewer at high scores)
     // Use a linear interpolation between MAX_EMOJI_BURST and MIN_EMOJI_BURST over the SCORE_RANGE_FOR_REDUCTION
     const scoreFactor = Math.min(score, SCORE_RANGE_FOR_REDUCTION) / SCORE_RANGE_FOR_REDUCTION; // 0 at score 0, 1 at SCORE_RANGE_FOR_REDUCTION+
+    // Ensure the number of emojis is an integer
     const numberOfEmojis = Math.round(MAX_EMOJI_BURST - (MAX_EMOJI_BURST - MIN_EMOJI_BURST) * scoreFactor);
 
 
@@ -531,10 +553,23 @@ function spawnEmoji(emojiChar) {
     // Project the 3D world position to 2D screen coordinates
     const screenPosition = sidePosition3D.project(camera);
 
-    // Convert normalized device coordinates to pixel coordinates
+    // Convert normalized device coordinates to pixel coordinates relative to the viewport
     const canvasBounds = canvas.getBoundingClientRect();
     const emojiX = (screenPosition.x * 0.5 + 0.5) * canvasBounds.width + canvasBounds.left;
     const emojiY = (-screenPosition.y * 0.5 + 0.5) * canvasBounds.height + canvasBounds.top;
+
+    // --- Add bounds check for potential mobile issues ---
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+    const emojiSize = 2.5 * parseFloat(getComputedStyle(document.documentElement).fontSize); // Approx size based on font-size
+
+    // Check if the emoji position is within the viewport (with a small buffer)
+    const buffer = 20; // pixels
+    if (emojiX < -buffer || emojiX > viewportWidth + buffer || emojiY < -buffer || emojiY > viewportHeight + buffer) {
+        console.warn(`Emoji position outside viewport bounds. Skipping spawn: x=${emojiX}, y=${emojiY}, viewport=${viewportWidth}x${viewportHeight}`);
+        return; // Don't spawn emoji if it's far off-screen
+    }
+    // --- End bounds check ---
 
 
     const emojiElement = document.createElement('div');
@@ -552,6 +587,7 @@ function spawnEmoji(emojiChar) {
     emojiElement.addEventListener('animationend', () => {
         emojiElement.remove();
     });
+     console.log(`Spawned emoji '${emojiChar}' at screen pos: ${emojiX.toFixed(1)}, ${emojiY.toFixed(1)}`);
 }
 
 
@@ -622,6 +658,7 @@ function onWindowResize() {
 
     camera.updateProjectionMatrix();
     renderer.setSize(cW, cH);
+     console.log(`Resized. Canvas: ${cW}x${cH}, Aspect: ${aspect.toFixed(2)}, FOV: ${camera.fov.toFixed(1)}, CamZ: ${camera.position.z.toFixed(2)}`);
 }
 
 let animationFrameId = null;
@@ -642,14 +679,14 @@ function animate() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log("DOM fully loaded. Initializing game (Modified for speed-based emojis).");
+    console.log("DOM fully loaded. Initializing game (Modified for mobile emoji fix).");
     resetButton.addEventListener('click', resetGame);
     initAudio();
     try {
         init3D();
         if (scene && camera && renderer && clock) {
             animate();
-            console.log("Animation loop started (Modified for speed-based emojis).");
+            console.log("Animation loop started (Modified for mobile emoji fix).");
         } else {
             console.error("Initialization incomplete. Animation loop NOT started.");
             alert("Game init failed critically. Check console (WebGL/assets).");
@@ -661,4 +698,4 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.addEventListener('resize', onWindowResize, false);
-console.log("game3d.js (Modified for speed-based emojis) script finished parsing.");
+console.log("game3d.js (Modified for mobile emoji fix) script finished parsing.");
