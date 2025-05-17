@@ -1,76 +1,86 @@
-html, body {
-  margin: 0;
-   padding: 0;
-   width: 100%;
-   height: 100%;
-   overflow: hidden;
-   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-   background: linear-gradient(135deg, #74ebd5 0%, #9face6 100%);
-   display: flex;
-   justify-content: center;
-   align-items: center;
+/* style.css - No changes needed for emoji logic, but including for completeness */
+html,
+body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #74ebd5 0%, #9face6 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .game-container {
-  display: flex;
- flex-direction: column;
- width: 50%;
- max-width: 960px;
- height: 100%;
- border-radius: 20px;
- box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
- background-color: #ffffffdd;
- text-align: center;
- overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    width: 95%;
+    max-width: 960px;
+    height: 95%;
+    max-height: 700px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    background-color: #ffffffdd;
+    text-align: center;
+    overflow: hidden;
+    margin: auto;
+    position: relative;
 }
 
 .game-header {
-    padding:15px;
+    padding: 15px;
     background-color: #ff6f61;
-    flex-shrink: 0; /* Prevent this from shrinking if content grows */
+    flex-shrink: 0;
     z-index: 10;
     color: white;
     position: relative;
 }
+
 .game-header h1 {
     margin: 0;
-    font-size: clamp(1.2em, 4vw, 1.8em); /* Responsive font size with clamp */
+    font-size: clamp(1.2em, 4vw, 1.8em);
     color: #ffc107;
 }
+
 .game-header p {
     margin: 5px 0 0;
     font-size: clamp(0.8em, 2.5vw, 0.9em);
 }
 
 #canvasContainer {
-    flex-grow: 1; /* Canvas container takes up remaining vertical space */
-    display: flex; /* Can help center canvas if it's not 100% for some reason */
+    flex-grow: 1;
+    display: flex;
     justify-content: center;
     align-items: center;
     position: relative;
-    background-color: #20232a; /* Default background for the 3D scene if skybox fails (THIS IS LIKELY WHAT YOU SEE) */
-    overflow: hidden; /* CRITICAL for canvas to prevent it from causing scrollbars */
+    background-color: #20232a;
+    overflow: hidden;
 }
 
-#boxingCanvas3D {; /* Removes extra space below canvas if it were inline */
+#boxingCanvas3D {
+    display: block;
     max-width: 100%;
     max-height: 100%;
-    outline: none; /* Remove potential focus outline */
+    outline: none;
 }
 
 .game-footer {
     padding: 10px 5px;
-    background-color:#4caf50; ;
-    flex-shrink: 0; /* Prevent this from shrinking */
+    background-color: #4caf50;
+    flex-shrink: 0;
     z-index: 10;
     position: relative;
 }
 
-#scoreDisplay, #speedDisplay {
+#scoreDisplay,
+#speedDisplay {
     font-size: clamp(1em, 3vw, 1.1em);
     margin: 3px auto;
     color: #fff;
 }
+
 #resetButton {
     padding: 8px 16px;
     font-size: 1em;
@@ -85,6 +95,7 @@ html, body {
 #resetButton:hover {
     background-color: #e68900;
 }
+
 #emojiOverlay {
     position: absolute;
     top: 0;
@@ -100,28 +111,44 @@ html, body {
     position: absolute;
     font-size: 2.5rem;
     animation: fall 2s ease-in forwards;
+    transform: translate(-50%, -50%);
 }
 
 @keyframes fall {
     0% {
-        transform: translateY(-50px) scale(1.2);
+        transform: translate(-50%, -50%) scale(1.2);
         opacity: 1;
     }
     100% {
-        transform: translateY(100vh) scale(1);
+        transform: translate(-50%, calc(100vh - 50px)) scale(1);
         opacity: 0;
     }
 }
 
-/* Responsive adjustments - Tweak as needed */
-@media (orientation: landscape) and (max-height: 480px) { /* Shallow landscape */
-    .game-header { padding: 5px; }
-    .game-header h1 { font-size: clamp(1em, 3.5vh, 1.2em); }
-    .game-header p { font-size: clamp(0.7em, 2vh, 0.8em); }
-    .game-footer { padding: 5px; }
-    #scoreDisplay, #speedDisplay { font-size: clamp(0.8em, 2.5vh, 1em); }
+@media (orientation: landscape) and (max-height: 480px) {
+    .game-header {
+        padding: 5px;
+    }
+    .game-header h1 {
+        font-size: clamp(1em, 3.5vh, 1.2em);
+    }
+    .game-header p {
+        font-size: clamp(0.7em, 2vh, 0.8em);
+    }
+    .game-footer {
+        padding: 5px;
+    }
+    #scoreDisplay,
+    #speedDisplay {
+        font-size: clamp(0.8em, 2.5vh, 1em);
+    }
 }
 
-@media (max-width: 400px) { /* Very small screens (portrait) */
-    .game-header h1 { font-size: clamp(1em, 5vw, 1.2em); }
+@media (max-width: 600px) {
+    .game-container {
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+        box-shadow: none;
+    }
 }
