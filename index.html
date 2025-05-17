@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Freestanding Punching Bag Game (V2.3 - Centered)</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <h1>Punching Bag Stand!</h1>
+            <p>Press SPACE or TAP the bag to punch!</p>
+        </header>
+        <div id="canvasContainer">
+             <canvas id="boxingCanvas3D"></canvas>
+        </div>
+        <div id="emojiOverlay"></div>
+        <footer class="game-footer">
+            <div id="scoreDisplay">Score: 0</div>
+            <div id="speedDisplay">last hit: Normal</div>
+             <button id="resetButton">Reset</button>
+        </footer>
+    </div>
+
+    <!-- Audio Elements -->
+    <audio id="punchSound1" src="punch-light.mp3" preload="auto"></audio>
+    <audio id="punchSound2" src="hit-medium.mp3" preload="auto"></audio>
+    <audio id="punchSound3" src="hit-hard.mp3" preload="auto"></audio>
+
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <!-- Game Logic -->
+    <script src="script.js"></script>
+</body>
+</html>
